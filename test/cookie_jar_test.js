@@ -541,4 +541,28 @@ vows
       }
     }
   })
+  .addBatch({
+    "Prototype pollution": {
+      "when setting a cookie with the domain __proto__": {
+        topic: function() {
+          const jar = new tough.CookieJar(undefined, {
+            rejectPublicSuffixes: false
+          });
+          jar.setCookieSync(
+            "Slonser=polluted; Domain=__proto__; Path=/notauth",
+            "https://__proto__/admin"
+          );
+          jar.setCookieSync(
+            "Auth=Lol; Domain=google.com; Path=/notauth",
+            "https://google.com/"
+          );
+          this.callback();
+        },
+        "results in a cookie that is not affected by the attempted prototype pollution": function() {
+          const pollutedObject = {};
+          assert(pollutedObject["/notauth"] === undefined);
+        }
+      }
+    }
+  })
   .export(module);
